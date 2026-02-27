@@ -145,7 +145,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#0c0a09] text-white overflow-hidden">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col lg:flex-row bg-[#0c0a09] text-white overflow-x-hidden">
       <style jsx>{`
         @keyframes float-up {
           0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
@@ -186,6 +186,10 @@ export default function SignupPage() {
           0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
           50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.4); }
         }
+        @keyframes mobile-fade-in {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         .animate-float-up { animation: float-up linear infinite; }
         .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
         .animate-slide-left { animation: slide-in-left 0.8s ease-out forwards; }
@@ -194,6 +198,7 @@ export default function SignupPage() {
         .animate-gentle-float { animation: gentle-float 4s ease-in-out infinite; }
         .animate-confetti { animation: confetti-fall 2s ease-out forwards; }
         .animate-success-pulse { animation: success-pulse 2s ease-in-out infinite; }
+        .animate-mobile-fade { animation: mobile-fade-in 0.6s ease-out forwards; }
         .shimmer-line {
           background: linear-gradient(90deg, transparent, rgba(244, 63, 94, 0.15), transparent);
           background-size: 200% 100%;
@@ -208,8 +213,54 @@ export default function SignupPage() {
         }
       `}</style>
 
+      {/* Mobile Hero Banner - visible only on mobile */}
+      <div className="lg:hidden relative w-full h-44 sm:h-52 flex-shrink-0 overflow-hidden">
+        <img
+          src="https://mgx-backend-cdn.metadl.com/generate/images/981465/2026-02-21/cd7e472b-1284-4d14-b577-c289eeb61c8b.png"
+          alt="Adorable kitten"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0c0a09]/30 via-transparent to-[#0c0a09]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-rose-950/20 via-transparent to-orange-950/20" />
+        {/* Mobile floating paws */}
+        {[
+          { delay: '0s', duration: '9s', left: '15%', size: 'w-5 h-5' },
+          { delay: '2s', duration: '7s', left: '55%', size: 'w-4 h-4' },
+          { delay: '3.5s', duration: '6s', left: '80%', size: 'w-6 h-6' },
+        ].map((paw, i) => (
+          <div
+            key={i}
+            className={`absolute ${paw.size} text-rose-400/10 animate-float-up`}
+            style={{ left: paw.left, animationDelay: paw.delay, animationDuration: paw.duration }}
+          >
+            <Icons.Paw />
+          </div>
+        ))}
+        {/* Mobile Logo overlay */}
+        <div className="absolute top-4 left-4 z-10">
+          <Link href="/" className="inline-flex items-center gap-2 group">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-500/20 group-hover:scale-110 transition-transform duration-300">
+              <Icons.Paw />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-rose-300 via-orange-300 to-amber-300 bg-clip-text text-transparent">
+              PawMatch
+            </span>
+          </Link>
+        </div>
+        {/* Mobile hero text */}
+        <div className="absolute bottom-4 left-4 right-4 z-10">
+          <h2 className="text-2xl sm:text-3xl font-bold leading-tight tracking-tight">
+            Join Our{' '}
+            <span className="bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 bg-clip-text text-transparent">
+              Loving Community
+            </span>
+            <span className="inline-block ml-1 animate-gentle-float text-xl">🐱</span>
+          </h2>
+        </div>
+      </div>
+
       {/* Left Side - Signup Form */}
-      <div className={`w-full lg:w-[45%] flex items-center justify-center px-6 sm:px-10 py-8 relative ${mounted ? 'animate-slide-left' : 'opacity-0'}`}>
+      <div className={`w-full lg:w-[45%] flex flex-1 items-center justify-center px-4 sm:px-6 md:px-10 py-6 sm:py-8 relative order-1 lg:order-1 ${mounted ? 'lg:animate-slide-left animate-mobile-fade' : 'opacity-0'}`}>
         {/* Background accents */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -left-40 w-80 h-80 bg-rose-500/[0.04] rounded-full blur-[100px]" />
@@ -217,25 +268,13 @@ export default function SignupPage() {
         </div>
 
         <div className="w-full max-w-[420px] relative z-10">
-          {/* Mobile Logo */}
-          <div className="text-center mb-6 lg:hidden">
-            <Link href="/" className="inline-flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-500/20">
-                <Icons.Paw />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 bg-clip-text text-transparent">
-                PawMatch
-              </span>
-            </Link>
-          </div>
-
           {/* Form Card */}
-          <div className="glass-effect bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 sm:p-10 relative overflow-hidden">
+          <div className="glass-effect bg-white/[0.03] border border-white/[0.06] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 relative overflow-hidden">
             {/* Top shimmer line */}
             <div className="absolute top-0 left-0 right-0 h-px shimmer-line" />
 
             {success ? (
-              <div className="text-center py-8 relative">
+              <div className="text-center py-6 sm:py-8 relative">
                 {/* Confetti particles */}
                 {[...Array(12)].map((_, i) => (
                   <div
@@ -252,16 +291,16 @@ export default function SignupPage() {
                     }}
                   />
                 ))}
-                <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full flex items-center justify-center text-white shadow-lg animate-success-pulse">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full flex items-center justify-center text-white shadow-lg animate-success-pulse">
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 </div>
-                <h2 className="text-3xl font-bold mb-3 text-white tracking-tight">Welcome to PawMatch! 🎉</h2>
-                <p className="text-gray-400 mb-2 leading-relaxed">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 text-white tracking-tight">Welcome to PawMatch! 🎉</h2>
+                <p className="text-gray-400 mb-2 leading-relaxed text-sm sm:text-base">
                   Your account has been created successfully.
                 </p>
-                <p className="text-gray-600 text-sm mb-6">A verification email has been sent to your inbox.</p>
+                <p className="text-gray-600 text-xs sm:text-sm mb-5 sm:mb-6">A verification email has been sent to your inbox.</p>
                 <div className="flex items-center justify-center gap-2 text-orange-400 text-sm">
                   <Icons.Loader />
                   <span>Redirecting to dashboard...</span>
@@ -270,18 +309,18 @@ export default function SignupPage() {
             ) : (
               <>
                 {/* Header */}
-                <div className="mb-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/[0.08] border border-rose-500/[0.12] text-rose-400 text-xs font-medium mb-5">
+                <div className="mb-5 sm:mb-6">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/[0.08] border border-rose-500/[0.12] text-rose-400 text-xs font-medium mb-4 sm:mb-5">
                     <Icons.Sparkles />
                     <span>Start your pet journey!</span>
                   </div>
-                  <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Create Account</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1.5 sm:mb-2 tracking-tight">Create Account</h1>
                   <p className="text-gray-500 text-sm">Join PawMatch and find your perfect companion</p>
                 </div>
 
                 {/* Error */}
                 {error && (
-                  <div className="mb-5 p-3.5 rounded-xl bg-red-500/[0.08] border border-red-500/[0.12] text-red-400 text-sm flex items-center gap-2.5">
+                  <div className="mb-4 sm:mb-5 p-3 sm:p-3.5 rounded-xl bg-red-500/[0.08] border border-red-500/[0.12] text-red-400 text-sm flex items-center gap-2.5">
                     <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
                     </svg>
@@ -290,11 +329,11 @@ export default function SignupPage() {
                 )}
 
                 {/* Form */}
-                <form onSubmit={handleSignup} className="space-y-4">
+                <form onSubmit={handleSignup} className="space-y-3.5 sm:space-y-4">
                   <div className="animate-fade-up" style={{ animationDelay: '0.05s' }}>
                     <label className="block text-sm font-medium mb-1.5 text-gray-400">Full Name</label>
                     <div className="relative group input-glow rounded-xl transition-all duration-300">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-rose-400 transition-colors duration-300">
+                      <span className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-rose-400 transition-colors duration-300">
                         <Icons.User />
                       </span>
                       <input
@@ -303,7 +342,7 @@ export default function SignupPage() {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="John Doe"
                         required
-                        className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-rose-500/30 transition-all duration-300 hover:bg-white/[0.06]"
+                        className="w-full pl-11 sm:pl-12 pr-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-rose-500/30 transition-all duration-300 hover:bg-white/[0.06] text-base"
                       />
                     </div>
                   </div>
@@ -311,7 +350,7 @@ export default function SignupPage() {
                   <div className="animate-fade-up" style={{ animationDelay: '0.1s' }}>
                     <label className="block text-sm font-medium mb-1.5 text-gray-400">Email</label>
                     <div className="relative group input-glow rounded-xl transition-all duration-300">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-rose-400 transition-colors duration-300">
+                      <span className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-rose-400 transition-colors duration-300">
                         <Icons.Mail />
                       </span>
                       <input
@@ -320,7 +359,7 @@ export default function SignupPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="your@email.com"
                         required
-                        className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-rose-500/30 transition-all duration-300 hover:bg-white/[0.06]"
+                        className="w-full pl-11 sm:pl-12 pr-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-rose-500/30 transition-all duration-300 hover:bg-white/[0.06] text-base"
                       />
                     </div>
                   </div>
@@ -328,7 +367,7 @@ export default function SignupPage() {
                   <div className="animate-fade-up" style={{ animationDelay: '0.15s' }}>
                     <label className="block text-sm font-medium mb-1.5 text-gray-400">Password</label>
                     <div className="relative group input-glow rounded-xl transition-all duration-300">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-rose-400 transition-colors duration-300">
+                      <span className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-rose-400 transition-colors duration-300">
                         <Icons.Lock />
                       </span>
                       <input
@@ -338,12 +377,12 @@ export default function SignupPage() {
                         placeholder="Min. 6 characters"
                         required
                         minLength={6}
-                        className="w-full pl-12 pr-12 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-rose-500/30 transition-all duration-300 hover:bg-white/[0.06]"
+                        className="w-full pl-11 sm:pl-12 pr-12 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-rose-500/30 transition-all duration-300 hover:bg-white/[0.06] text-base"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors"
+                        className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors p-1"
                       >
                         {showPassword ? <Icons.EyeOff /> : <Icons.Eye />}
                       </button>
@@ -378,7 +417,7 @@ export default function SignupPage() {
                   <div className="animate-fade-up" style={{ animationDelay: '0.2s' }}>
                     <label className="block text-sm font-medium mb-1.5 text-gray-400">Confirm Password</label>
                     <div className="relative group input-glow rounded-xl transition-all duration-300">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-rose-400 transition-colors duration-300">
+                      <span className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-rose-400 transition-colors duration-300">
                         <Icons.Lock />
                       </span>
                       <input
@@ -387,7 +426,7 @@ export default function SignupPage() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Confirm your password"
                         required
-                        className={`w-full pl-12 pr-12 py-3 rounded-xl bg-white/[0.04] border text-white placeholder-gray-600 focus:outline-none focus:ring-0 transition-all duration-300 hover:bg-white/[0.06] ${
+                        className={`w-full pl-11 sm:pl-12 pr-12 py-3 rounded-xl bg-white/[0.04] border text-white placeholder-gray-600 focus:outline-none focus:ring-0 transition-all duration-300 hover:bg-white/[0.06] text-base ${
                           confirmPassword.length > 0 && confirmPassword !== password
                             ? 'border-red-500/30 focus:border-red-500/40'
                             : confirmPassword.length > 0 && confirmPassword === password
@@ -396,7 +435,7 @@ export default function SignupPage() {
                         }`}
                       />
                       {confirmPassword.length > 0 && (
-                        <span className={`absolute right-4 top-1/2 -translate-y-1/2 ${
+                        <span className={`absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 ${
                           confirmPassword === password ? 'text-emerald-400' : 'text-red-400'
                         }`}>
                           {confirmPassword === password ? (
@@ -418,7 +457,7 @@ export default function SignupPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3.5 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-semibold rounded-xl shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99] group"
+                      className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-semibold rounded-xl shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99] group text-base"
                     >
                       {loading ? (
                         <><Icons.Loader /> Creating account...</>
@@ -434,7 +473,29 @@ export default function SignupPage() {
                   </div>
                 </form>
 
-                <p className="text-center mt-6 text-gray-500 text-sm">
+                {/* Mobile Feature Cards */}
+                <div className="lg:hidden mt-5 pt-5 border-t border-white/[0.04] space-y-2.5">
+                  {[
+                    { icon: <Icons.Heart />, title: 'Smart Matching', desc: 'AI-powered pet matching' },
+                    { icon: <Icons.Shield />, title: 'Verified Shelters', desc: 'All partners verified' },
+                    { icon: <Icons.Paw />, title: 'Post-Adoption Support', desc: 'Ongoing guidance' },
+                  ].map((feature, i) => (
+                    <div
+                      key={i}
+                      className="glass-effect bg-white/[0.03] border border-white/[0.05] rounded-lg p-3 flex items-center gap-3"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500/15 to-orange-500/15 border border-rose-500/10 flex items-center justify-center text-rose-400 flex-shrink-0">
+                        {feature.icon}
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold text-white/90">{feature.title}</div>
+                        <div className="text-[10px] text-gray-500">{feature.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-center mt-5 sm:mt-6 text-gray-500 text-sm">
                   Already have an account?{' '}
                   <Link href="/auth/login" className="font-semibold text-rose-400 hover:text-rose-300 transition-colors">
                     Sign In
@@ -446,8 +507,8 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* Right Side - Image & Branding Panel */}
-      <div className="hidden lg:flex lg:w-[55%] relative">
+      {/* Right Side - Image & Branding Panel (Desktop only) */}
+      <div className="hidden lg:flex lg:w-[55%] relative order-2">
         {/* Hero Image */}
         <div className="absolute inset-0">
           <img
