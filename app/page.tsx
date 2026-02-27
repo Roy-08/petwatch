@@ -443,9 +443,7 @@ export default function PetAdoptionLanding() {
                     <Icons.User />
                     Login
                   </Link>
-                  <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white font-semibold rounded-xl shadow-lg mt-2">
-                    Get Started
-                  </Link>
+                  
                 </>
               )}
 
