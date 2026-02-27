@@ -165,6 +165,11 @@ const Icons = {
       <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
     </svg>
   ),
+  User: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
 };
 
 interface Pet {
@@ -253,12 +258,16 @@ export default function PetAdoptionLanding() {
   const [activeFilter, setActiveFilter] = useState('');
   const [featuredPets, setFeaturedPets] = useState<Pet[]>([]);
   const [loadingPets, setLoadingPets] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const savedMode = localStorage.getItem('darkMode');
     if (savedMode) {
       setDarkMode(JSON.parse(savedMode));
     }
+    // Check login state on client
+    const user = localStorage.getItem('pawmatch_user');
+    setIsLoggedIn(!!user);
   }, []);
 
   useEffect(() => {
@@ -273,6 +282,18 @@ export default function PetAdoptionLanding() {
   useEffect(() => {
     fetchFeaturedPets();
   }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   const fetchFeaturedPets = async () => {
     setLoadingPets(true);
@@ -290,26 +311,35 @@ export default function PetAdoptionLanding() {
   };
 
   const nextPet = () => {
-    setCurrentPetIndex((prev) => (prev + 3 >= featuredPets.length ? 0 : prev + 1));
+    const step = typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : 3;
+    setCurrentPetIndex((prev) => (prev + step >= featuredPets.length ? 0 : prev + 1));
   };
 
   const prevPet = () => {
-    setCurrentPetIndex((prev) => (prev === 0 ? Math.max(0, featuredPets.length - 3) : prev - 1));
+    const step = typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : 3;
+    setCurrentPetIndex((prev) => (prev === 0 ? Math.max(0, featuredPets.length - step) : prev - 1));
   };
 
-  const visiblePets = featuredPets.slice(currentPetIndex, currentPetIndex + 3);
+  const getVisiblePets = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return featuredPets.slice(currentPetIndex, currentPetIndex + 1);
+    }
+    return featuredPets.slice(currentPetIndex, currentPetIndex + 3);
+  };
+
+  const visiblePets = getVisiblePets();
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-950 text-white' : 'bg-white text-gray-900'}`}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${darkMode ? 'bg-gray-900/95 border-gray-800' : 'bg-white/95 border-gray-100 shadow-sm'} backdrop-blur-lg border-b`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-orange-500 shadow-lg shadow-rose-500/30 text-white">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-orange-500 shadow-lg shadow-rose-500/30 text-white">
                 <Icons.Paw />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-rose-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-rose-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">
                 PawMatch
               </span>
             </div>
@@ -323,23 +353,26 @@ export default function PetAdoptionLanding() {
               <a href="#contact" className={`font-medium transition-colors ${darkMode ? 'text-gray-300 hover:text-orange-400' : 'text-gray-600 hover:text-rose-600'}`}>Contact</a>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* Dark Mode Toggle */}
               <button
                 onClick={() => setDarkMode(!darkMode)}
-                className={`p-2.5 rounded-full transition-all ${darkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-gradient-to-r from-amber-100 to-orange-100 text-orange-600 hover:from-amber-200 hover:to-orange-200 shadow-sm'}`}
+                className={`p-2 sm:p-2.5 rounded-full transition-all ${darkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-gradient-to-r from-amber-100 to-orange-100 text-orange-600 hover:from-amber-200 hover:to-orange-200 shadow-sm'}`}
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? <Icons.Sun /> : <Icons.Moon />}
               </button>
 
-              {typeof window !== 'undefined' && localStorage.getItem('pawmatch_user') ? (
-                <Link href="/dashboard" className={`hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all ${darkMode ? 'bg-gray-800 text-orange-400 hover:bg-gray-700' : 'bg-gradient-to-r from-rose-100 to-orange-100 text-rose-600 hover:from-rose-200 hover:to-orange-200'}`}>
-                  Dashboard
+              {/* Login/Dashboard - VISIBLE ON ALL SCREENS */}
+              {isLoggedIn ? (
+                <Link href="/dashboard" className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-medium transition-all text-sm sm:text-base ${darkMode ? 'bg-gray-800 text-orange-400 hover:bg-gray-700' : 'bg-gradient-to-r from-rose-100 to-orange-100 text-rose-600 hover:from-rose-200 hover:to-orange-200'}`}>
+                  <Icons.User />
+                  <span className="hidden xs:inline">Dashboard</span>
                 </Link>
               ) : (
-                <Link href="/auth/login" className={`hidden sm:block px-5 py-2.5 font-medium rounded-xl transition-all ${darkMode ? 'bg-gray-800 text-orange-400 hover:bg-gray-700 border border-gray-700' : 'border-2 border-rose-300 text-rose-600 hover:bg-rose-50'}`}>
-                  Login
+                <Link href="/auth/login" className={`flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 font-medium rounded-lg sm:rounded-xl transition-all text-sm sm:text-base ${darkMode ? 'bg-gray-800 text-orange-400 hover:bg-gray-700 border border-gray-700' : 'border-2 border-rose-300 text-rose-600 hover:bg-rose-50'}`}>
+                  <Icons.User />
+                  <span>Login</span>
                 </Link>
               )}
 
@@ -356,45 +389,95 @@ export default function PetAdoptionLanding() {
               </button>
             </div>
           </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className={`md:hidden py-4 border-t ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
-              <div className="flex flex-col gap-4">
-                <Link href="/pets" className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Find Pets</Link>
-                <Link href="/shelters" className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Shelters</Link>
-                <Link href="/guides" className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Guides</Link>
-                <Link href="/faqs" className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>FAQs</Link>
-                <a href="#contact" className={`font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Contact</a>
-                <div className="flex gap-3 pt-2">
-                  <Link href="/pets" className="flex-1 py-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white font-medium rounded-xl text-center">Take Home</Link>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </nav>
 
+      {/* Mobile Menu - Full Screen Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] md:hidden">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          <div className={`absolute top-0 right-0 bottom-0 w-[min(300px,80vw)] ${darkMode ? 'bg-gray-900' : 'bg-white'} shadow-2xl`}
+            style={{ animation: 'slideInRight 0.3s ease-out' }}>
+            <div className={`flex items-center justify-between p-4 border-b ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
+              <span className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>Menu</span>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className={`p-2 rounded-lg ${darkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`}
+              >
+                <Icons.X />
+              </button>
+            </div>
+            <div className="flex flex-col p-4 gap-1">
+              <Link href="/pets" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-orange-400' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-600'}`}>
+                <Icons.Search />
+                Find Pets
+              </Link>
+              <Link href="/shelters" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-orange-400' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-600'}`}>
+                <Icons.Building />
+                Shelters
+              </Link>
+              <Link href="/guides" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-orange-400' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-600'}`}>
+                <Icons.Sparkles />
+                Guides
+              </Link>
+              <Link href="/faqs" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-orange-400' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-600'}`}>
+                <Icons.Shield />
+                FAQs
+              </Link>
+              <a href="#contact" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-orange-400' : 'text-gray-600 hover:bg-rose-50 hover:text-rose-600'}`}>
+                <Icons.Phone />
+                Contact
+              </a>
+
+              <div className={`my-3 border-t ${darkMode ? 'border-gray-800' : 'border-gray-100'}`} />
+
+              {/* Mobile Auth Buttons */}
+              {isLoggedIn ? (
+                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white font-semibold rounded-xl shadow-lg">
+                  <Icons.User />
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)} className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-all ${darkMode ? 'bg-gray-800 text-orange-400 border border-gray-700' : 'border-2 border-rose-300 text-rose-600'}`}>
+                    <Icons.User />
+                    Login
+                  </Link>
+                  <Link href="/auth/register" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white font-semibold rounded-xl shadow-lg mt-2">
+                    Get Started
+                  </Link>
+                </>
+              )}
+
+              <Link href="/pets" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/30 mt-2">
+                <Icons.Paw />
+                Take Home a Pet
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
-      <section className={`pt-28 pb-20 px-4 relative overflow-hidden ${darkMode ? '' : 'bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50'}`}>
+      <section className={`pt-20 sm:pt-28 pb-12 sm:pb-20 px-4 relative overflow-hidden ${darkMode ? '' : 'bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50'}`}>
         {!darkMode && (
           <>
-            <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-to-br from-rose-200/40 to-orange-200/40 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-br from-amber-200/40 to-yellow-200/40 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full blur-3xl" />
+            <div className="absolute top-20 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-gradient-to-br from-rose-200/40 to-orange-200/40 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-40 sm:w-80 h-40 sm:h-80 bg-gradient-to-br from-amber-200/40 to-yellow-200/40 rounded-full blur-3xl" />
+            <div className="absolute top-1/2 left-1/4 w-32 sm:w-64 h-32 sm:h-64 bg-gradient-to-br from-pink-200/30 to-rose-200/30 rounded-full blur-3xl" />
           </>
         )}
 
         <div className="max-w-7xl mx-auto relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
-            <div className="space-y-8">
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${darkMode ? 'bg-gray-800/50 border-gray-700 text-emerald-400' : 'bg-white/80 border-emerald-200 text-emerald-600 shadow-sm'}`}>
+            <div className="space-y-5 sm:space-y-8">
+              <div className={`inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border text-xs sm:text-sm ${darkMode ? 'bg-gray-800/50 border-gray-700 text-emerald-400' : 'bg-white/80 border-emerald-200 text-emerald-600 shadow-sm'}`}>
                 <Icons.Gift />
-                <span className="text-sm font-semibold">Adopt a Pet Today — Give Them a Loving Home!</span>
+                <span className="font-semibold">Adopt a Pet Today — Give Them a Loving Home!</span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
                 <span className={darkMode ? 'text-white' : 'text-gray-900'}>Give a Pet</span>
                 <br />
                 <span className="bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 bg-clip-text text-transparent">
@@ -404,7 +487,7 @@ export default function PetAdoptionLanding() {
                 <span className={darkMode ? 'text-white' : 'text-gray-900'}>Today</span>
               </h1>
               
-              <p className={`text-xl max-w-lg leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p className={`text-base sm:text-xl max-w-lg leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Every pet deserves a loving home. Browse thousands of adorable pets waiting for you — 
                 all they need is your love and care.
               </p>
@@ -412,7 +495,7 @@ export default function PetAdoptionLanding() {
               {/* Search Bar */}
               <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
                 <div className="relative flex-1">
-                  <span className={`absolute left-4 top-1/2 -translate-y-1/2 ${darkMode ? 'text-gray-500' : 'text-rose-400'}`}>
+                  <span className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 ${darkMode ? 'text-gray-500' : 'text-rose-400'}`}>
                     <Icons.Search />
                   </span>
                   <input
@@ -420,7 +503,7 @@ export default function PetAdoptionLanding() {
                     placeholder="Search by breed, location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full pl-12 pr-4 h-14 text-lg rounded-2xl focus:outline-none focus:ring-2 transition-all ${
+                    className={`w-full pl-10 sm:pl-12 pr-4 h-12 sm:h-14 text-base sm:text-lg rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 transition-all ${
                       darkMode 
                         ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:ring-orange-500' 
                         : 'bg-white border-2 border-rose-200 text-gray-900 placeholder-gray-400 shadow-lg shadow-rose-100 focus:ring-rose-500 focus:border-rose-300'
@@ -429,7 +512,7 @@ export default function PetAdoptionLanding() {
                 </div>
                 <Link
                   href={`/pets${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`}
-                  className="h-14 px-8 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:via-orange-600 hover:to-amber-600 text-white text-lg font-semibold rounded-2xl shadow-lg shadow-orange-500/40 transition-all flex items-center justify-center gap-2"
+                  className="h-12 sm:h-14 px-6 sm:px-8 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:via-orange-600 hover:to-amber-600 text-white text-base sm:text-lg font-semibold rounded-xl sm:rounded-2xl shadow-lg shadow-orange-500/40 transition-all flex items-center justify-center gap-2"
                 >
                   <Icons.Search />
                   Search
@@ -437,13 +520,13 @@ export default function PetAdoptionLanding() {
               </div>
 
               {/* Quick Filters */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 {filters.map((filter) => (
                   <Link
                     key={filter.name}
                     href={`/pets?type=${filter.name === 'Small Pets' ? 'Hamster' : filter.name.slice(0, -1)}`}
                     onClick={() => setActiveFilter(activeFilter === filter.name ? '' : filter.name)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-medium transition-all ${
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full font-medium transition-all text-sm sm:text-base ${
                       activeFilter === filter.name
                         ? 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg shadow-orange-500/30'
                         : darkMode 
@@ -459,10 +542,10 @@ export default function PetAdoptionLanding() {
             </div>
 
             {/* Right Content - Hero Images */}
-            <div className="relative">
-              <div className="relative w-full max-w-lg mx-auto">
+            <div className="relative mt-4 lg:mt-0">
+              <div className="relative w-full max-w-sm sm:max-w-lg mx-auto">
                 {/* Main Image */}
-                <div className={`relative rounded-3xl overflow-hidden shadow-2xl ${darkMode ? 'shadow-orange-500/10' : 'shadow-rose-300/50 ring-4 ring-white'}`}>
+                <div className={`relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl ${darkMode ? 'shadow-orange-500/10' : 'shadow-rose-300/50 ring-4 ring-white'}`}>
                   <img
                     src="https://mgx-backend-cdn.metadl.com/generate/images/971737/2026-02-15/cf6de1a4-f6bc-417c-8886-d6982e1bcba8.png"
                     alt="Adorable pet waiting for a loving home"
@@ -472,47 +555,47 @@ export default function PetAdoptionLanding() {
                 </div>
                 
                 {/* Floating Adoption Badge */}
-                <div className={`absolute -left-4 lg:-left-8 top-1/4 p-4 rounded-2xl shadow-xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white ring-1 ring-emerald-100'}`}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+                <div className={`absolute -left-2 sm:-left-4 lg:-left-8 top-1/4 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white ring-1 ring-emerald-100'}`}>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
                       <Icons.Gift />
                     </div>
                     <div>
-                      <p className={`font-bold text-lg ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>Adopt</p>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Find Your Match</p>
+                      <p className={`font-bold text-base sm:text-lg ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>Adopt</p>
+                      <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Find Your Match</p>
                     </div>
                   </div>
                 </div>
                 
                 {/* Floating Stats Card */}
-                <div className={`absolute -right-2 lg:-right-4 bottom-1/4 p-4 rounded-2xl shadow-xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white ring-1 ring-rose-100'}`}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-rose-400 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-rose-500/30">
+                <div className={`absolute -right-1 sm:-right-2 lg:-right-4 bottom-1/4 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white ring-1 ring-rose-100'}`}>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-rose-400 to-pink-500 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-lg shadow-rose-500/30">
                       <Icons.Heart />
                     </div>
                     <div>
-                      <p className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>12,500+</p>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pets Rehomed</p>
+                      <p className={`font-bold text-base sm:text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>12,500+</p>
+                      <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pets Rehomed</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Small Image Thumbnails */}
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
+                <div className="absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3">
                   <img
                     src="https://mgx-backend-cdn.metadl.com/generate/images/971737/2026-02-15/946649c0-4f66-4449-a92d-78b9af2a3130.png"
                     alt="Cat"
-                    className={`w-16 h-16 rounded-xl object-cover shadow-lg ring-2 ${darkMode ? 'ring-gray-800' : 'ring-white'}`}
+                    className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl object-cover shadow-lg ring-2 ${darkMode ? 'ring-gray-800' : 'ring-white'}`}
                   />
                   <img
                     src="https://mgx-backend-cdn.metadl.com/generate/images/971737/2026-02-15/658a7b01-78b5-4d47-9745-65b98894619b.png"
                     alt="Rabbit"
-                    className={`w-16 h-16 rounded-xl object-cover shadow-lg ring-2 ${darkMode ? 'ring-gray-800' : 'ring-white'}`}
+                    className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl object-cover shadow-lg ring-2 ${darkMode ? 'ring-gray-800' : 'ring-white'}`}
                   />
                   <img
                     src="https://mgx-backend-cdn.metadl.com/generate/images/971737/2026-02-15/332df30f-1386-4b13-8ed1-01890b7ba767.png"
                     alt="Dog"
-                    className={`w-16 h-16 rounded-xl object-cover shadow-lg ring-2 ${darkMode ? 'ring-gray-800' : 'ring-white'}`}
+                    className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl object-cover shadow-lg ring-2 ${darkMode ? 'ring-gray-800' : 'ring-white'}`}
                   />
                 </div>
               </div>
@@ -522,25 +605,25 @@ export default function PetAdoptionLanding() {
       </section>
 
       {/* Stats Section */}
-      <section className={`py-16 px-4 ${darkMode ? 'bg-gray-900/50' : 'bg-white'}`}>
+      <section className={`py-12 sm:py-16 px-4 ${darkMode ? 'bg-gray-900/50' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className={`text-center p-6 rounded-2xl transition-all hover:-translate-y-1 ${
+                className={`text-center p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all hover:-translate-y-1 ${
                   darkMode 
                     ? 'bg-gray-800/50 border border-gray-700/50' 
                     : 'bg-white border border-gray-100 shadow-xl shadow-gray-200/50 hover:shadow-2xl'
                 }`}
               >
-                <div className={`w-14 h-14 mx-auto mb-4 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center text-white shadow-lg`}>
+                <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 bg-gradient-to-br ${stat.color} rounded-xl sm:rounded-2xl flex items-center justify-center text-white shadow-lg`}>
                   <stat.icon />
                 </div>
-                <p className={`text-3xl md:text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                <p className={`text-xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
                   {stat.value}
                 </p>
-                <p className={`font-medium mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{stat.label}</p>
+                <p className={`font-medium mt-1 text-xs sm:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -548,20 +631,20 @@ export default function PetAdoptionLanding() {
       </section>
 
       {/* Featured Pets - Now fetched from API */}
-      <section id="pets" className={`py-20 px-4 ${darkMode ? '' : 'bg-gradient-to-b from-white via-rose-50/30 to-white'}`}>
+      <section id="pets" className={`py-12 sm:py-20 px-4 ${darkMode ? '' : 'bg-gradient-to-b from-white via-rose-50/30 to-white'}`}>
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <span className={`inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full text-sm font-semibold ${
+          <div className="text-center mb-8 sm:mb-12">
+            <span className={`inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold ${
               darkMode ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-gradient-to-r from-rose-100 to-orange-100 text-rose-600 border border-rose-200'
             }`}>
               <Icons.HeartOutline />
               Available for Adoption
             </span>
-            <h2 className={`text-4xl md:text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               Meet Our Adorable
               <span className="bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 bg-clip-text text-transparent"> Friends</span>
             </h2>
-            <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-base sm:text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               These lovely pets are looking for their forever homes. All they need is your love and care!
             </p>
           </div>
@@ -577,10 +660,10 @@ export default function PetAdoptionLanding() {
           {/* Pets Grid with Navigation */}
           {!loadingPets && featuredPets.length > 0 && (
             <div className="relative">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4">
                 <button
                   onClick={prevPet}
-                  className={`hidden md:flex w-12 h-12 rounded-full items-center justify-center transition-all ${
+                  className={`flex w-10 h-10 sm:w-12 sm:h-12 rounded-full items-center justify-center transition-all flex-shrink-0 ${
                     darkMode 
                       ? 'bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-orange-400' 
                       : 'bg-white border-2 border-rose-200 text-rose-500 hover:bg-rose-50 hover:border-rose-400 shadow-lg'
@@ -589,60 +672,60 @@ export default function PetAdoptionLanding() {
                   <Icons.ChevronLeft />
                 </button>
 
-                <div className="flex-1 grid md:grid-cols-3 gap-6">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                   {visiblePets.map((pet) => (
                     <Link
                       key={pet._id}
                       href={`/pets/${pet._id}`}
-                      className={`group rounded-2xl overflow-hidden transition-all hover:-translate-y-2 block ${
+                      className={`group rounded-xl sm:rounded-2xl overflow-hidden transition-all hover:-translate-y-2 block ${
                         darkMode 
                           ? 'bg-gray-800 border border-gray-700' 
                           : 'bg-white border border-gray-100 shadow-xl shadow-gray-200/50 hover:shadow-2xl hover:shadow-rose-200/50'
                       }`}
                     >
-                      <div className="relative h-64 overflow-hidden">
+                      <div className="relative h-48 sm:h-64 overflow-hidden">
                         <img
                           src={pet.image}
                           alt={pet.name}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        <span className={`absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                        <span className={`absolute top-3 sm:top-4 right-3 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
                           darkMode 
                             ? 'bg-gray-900/80 text-pink-400 hover:bg-pink-500 hover:text-white' 
                             : 'bg-white/90 text-rose-500 hover:bg-rose-500 hover:text-white shadow-lg'
                         }`}>
                           <Icons.HeartOutline />
                         </span>
-                        <span className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full text-sm font-semibold ${
+                        <span className={`absolute bottom-3 sm:bottom-4 left-3 sm:left-4 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold ${
                           darkMode ? 'bg-gray-900/80 text-white' : 'bg-white/95 text-gray-700 shadow-sm'
                         }`}>
                           {pet.type}
                         </span>
                       </div>
-                      <div className="p-6">
+                      <div className="p-4 sm:p-6">
                         <div className="flex items-center justify-between mb-2">
-                          <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{pet.name}</h3>
-                          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          <h3 className={`text-lg sm:text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{pet.name}</h3>
+                          <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold ${
                             darkMode ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-gradient-to-r from-rose-100 to-orange-100 text-rose-600 border border-rose-200'
                           }`}>
                             {pet.age}
                           </span>
                         </div>
-                        <p className={`mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{pet.breed} • {pet.gender}</p>
-                        <div className={`flex items-center gap-2 mb-4 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                        <p className={`mb-2 text-sm sm:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{pet.breed} • {pet.gender}</p>
+                        <div className={`flex items-center gap-2 mb-3 sm:mb-4 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                           <Icons.Location />
-                          <span className="text-sm">{pet.shelterName}</span>
+                          <span className="text-xs sm:text-sm truncate">{pet.shelterName}</span>
                         </div>
-                        <div className="flex flex-wrap gap-2 mb-4">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                           {pet.personality.slice(0, 3).map((trait) => (
-                            <span key={trait} className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            <span key={trait} className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${
                               darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 border border-amber-200'
                             }`}>
                               {trait}
                             </span>
                           ))}
                         </div>
-                        <span className="w-full py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:via-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl transition-all shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2">
+                        <span className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:via-orange-600 hover:to-amber-600 text-white font-semibold rounded-lg sm:rounded-xl transition-all shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 text-sm sm:text-base">
                           Take {pet.name} Home
                           <Icons.ArrowRight />
                         </span>
@@ -653,7 +736,7 @@ export default function PetAdoptionLanding() {
 
                 <button
                   onClick={nextPet}
-                  className={`hidden md:flex w-12 h-12 rounded-full items-center justify-center transition-all ${
+                  className={`flex w-10 h-10 sm:w-12 sm:h-12 rounded-full items-center justify-center transition-all flex-shrink-0 ${
                     darkMode 
                       ? 'bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-orange-400' 
                       : 'bg-white border-2 border-rose-200 text-rose-500 hover:bg-rose-50 hover:border-rose-400 shadow-lg'
@@ -664,30 +747,33 @@ export default function PetAdoptionLanding() {
               </div>
 
               {/* Pagination Dots */}
-              <div className="flex justify-center gap-2 mt-8">
-                {Array.from({ length: Math.ceil(featuredPets.length / 3) }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentPetIndex(index * 3)}
-                    className={`h-2.5 rounded-full transition-all ${
-                      Math.floor(currentPetIndex / 3) === index
-                        ? 'bg-gradient-to-r from-rose-500 to-orange-500 w-8'
-                        : darkMode ? 'bg-gray-700 w-2.5 hover:bg-gray-600' : 'bg-rose-200 w-2.5 hover:bg-rose-300'
-                    }`}
-                  />
-                ))}
+              <div className="flex justify-center gap-2 mt-6 sm:mt-8">
+                {Array.from({ length: Math.ceil(featuredPets.length / (typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : 3)) }).map((_, index) => {
+                  const step = typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : 3;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPetIndex(index * step)}
+                      className={`h-2 sm:h-2.5 rounded-full transition-all ${
+                        Math.floor(currentPetIndex / step) === index
+                          ? 'bg-gradient-to-r from-rose-500 to-orange-500 w-6 sm:w-8'
+                          : darkMode ? 'bg-gray-700 w-2 sm:w-2.5 hover:bg-gray-600' : 'bg-rose-200 w-2 sm:w-2.5 hover:bg-rose-300'
+                      }`}
+                    />
+                  );
+                })}
               </div>
             </div>
           )}
 
           {!loadingPets && featuredPets.length === 0 && (
             <div className="text-center py-12">
-              <p className={`text-xl ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>No pets available at the moment. Please seed the database first.</p>
+              <p className={`text-base sm:text-xl ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>No pets available at the moment. Please seed the database first.</p>
             </div>
           )}
 
-          <div className="text-center mt-12">
-            <Link href="/pets" className={`px-8 py-3 font-semibold rounded-xl transition-all flex items-center gap-2 mx-auto w-fit ${
+          <div className="text-center mt-8 sm:mt-12">
+            <Link href="/pets" className={`px-6 sm:px-8 py-2.5 sm:py-3 font-semibold rounded-xl transition-all flex items-center gap-2 mx-auto w-fit text-sm sm:text-base ${
               darkMode 
                 ? 'bg-gray-800 border border-gray-700 text-orange-400 hover:bg-gray-700' 
                 : 'border-2 border-rose-400 text-rose-600 hover:bg-rose-50 hover:border-rose-500'
@@ -700,39 +786,39 @@ export default function PetAdoptionLanding() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className={`py-20 px-4 ${darkMode ? 'bg-gray-900/50' : 'bg-gradient-to-br from-violet-50 via-rose-50 to-amber-50'}`}>
+      <section id="features" className={`py-12 sm:py-20 px-4 ${darkMode ? 'bg-gray-900/50' : 'bg-gradient-to-br from-violet-50 via-rose-50 to-amber-50'}`}>
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className={`inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full text-sm font-semibold ${
+          <div className="text-center mb-10 sm:mb-16">
+            <span className={`inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold ${
               darkMode ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20' : 'bg-white text-violet-600 border border-violet-200 shadow-sm'
             }`}>
               <Icons.Sparkles />
               Unique Features
             </span>
-            <h2 className={`text-4xl md:text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               Why Choose
               <span className="bg-gradient-to-r from-violet-500 via-rose-500 to-orange-500 bg-clip-text text-transparent"> PawMatch?</span>
             </h2>
-            <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-base sm:text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               We&apos;ve reimagined the pet adoption experience — making it simple for everyone
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`group p-8 rounded-2xl transition-all hover:-translate-y-2 ${
+                className={`group p-4 sm:p-8 rounded-xl sm:rounded-2xl transition-all hover:-translate-y-2 ${
                   darkMode 
                     ? 'bg-gray-800/50 border border-gray-700/50 hover:border-gray-600' 
                     : `${feature.bgLight} border border-white shadow-xl hover:shadow-2xl`
                 }`}
               >
-                <div className={`w-16 h-16 mb-6 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110`}>
+                <div className={`w-10 h-10 sm:w-16 sm:h-16 mb-3 sm:mb-6 bg-gradient-to-br ${feature.gradient} rounded-xl sm:rounded-2xl flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110`}>
                   <feature.icon />
                 </div>
-                <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{feature.title}</h3>
-                <p className={`leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{feature.description}</p>
+                <h3 className={`text-sm sm:text-xl font-bold mb-1.5 sm:mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{feature.title}</h3>
+                <p className={`leading-relaxed text-xs sm:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{feature.description}</p>
               </div>
             ))}
           </div>
@@ -740,57 +826,57 @@ export default function PetAdoptionLanding() {
       </section>
 
       {/* Success Stories */}
-      <section id="stories" className={`py-20 px-4 ${darkMode ? '' : 'bg-white'}`}>
+      <section id="stories" className={`py-12 sm:py-20 px-4 ${darkMode ? '' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className={`inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full text-sm font-semibold ${
+          <div className="text-center mb-10 sm:mb-16">
+            <span className={`inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold ${
               darkMode ? 'bg-pink-500/10 text-pink-400 border border-pink-500/20' : 'bg-gradient-to-r from-pink-100 to-rose-100 text-pink-600 border border-pink-200'
             }`}>
               <Icons.Star />
               Success Stories
             </span>
-            <h2 className={`text-4xl md:text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               Happy Tails,
               <span className="bg-gradient-to-r from-pink-500 via-rose-500 to-orange-500 bg-clip-text text-transparent"> Happy Families</span>
             </h2>
-            <p className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-base sm:text-xl max-w-2xl mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Read heartwarming stories from families who found their perfect companions through adoption
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
             {successStories.map((story) => (
               <div
                 key={story.id}
-                className={`rounded-2xl overflow-hidden transition-all hover:-translate-y-2 ${
+                className={`rounded-xl sm:rounded-2xl overflow-hidden transition-all hover:-translate-y-2 ${
                   darkMode 
                     ? 'bg-gray-800 border border-gray-700' 
                     : 'bg-white border border-gray-100 shadow-xl shadow-gray-200/50 hover:shadow-2xl'
                 }`}
               >
-                <div className="grid md:grid-cols-2">
-                  <div className="h-64 md:h-full overflow-hidden">
+                <div className="grid sm:grid-cols-2">
+                  <div className="h-48 sm:h-64 md:h-full overflow-hidden">
                     <img
                       src={story.image}
                       alt={`${story.petName} with ${story.family}`}
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="p-8 flex flex-col justify-center relative">
-                    <div className={`absolute top-6 right-6 ${darkMode ? 'text-gray-700' : 'text-rose-100'}`}>
+                  <div className="p-5 sm:p-8 flex flex-col justify-center relative">
+                    <div className={`absolute top-4 sm:top-6 right-4 sm:right-6 ${darkMode ? 'text-gray-700' : 'text-rose-100'}`}>
                       <Icons.Quote />
                     </div>
-                    <div className="flex items-center gap-1 mb-4">
+                    <div className="flex items-center gap-1 mb-3 sm:mb-4">
                       {[...Array(5)].map((_, i) => (
                         <span key={i} className="text-amber-400"><Icons.Star /></span>
                       ))}
                     </div>
-                    <blockquote className={`italic mb-6 leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <blockquote className={`italic mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       &quot;{story.quote}&quot;
                     </blockquote>
                     <div className="mt-auto">
-                      <p className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{story.family}</p>
-                      <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                      <p className={`font-bold text-sm sm:text-base ${darkMode ? 'text-white' : 'text-gray-900'}`}>{story.family}</p>
+                      <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                         Adopted {story.petName} • {story.date}
                       </p>
                     </div>
@@ -807,25 +893,24 @@ export default function PetAdoptionLanding() {
       </section>
 
       {/* CTA Section */}
-      <section className={`py-20 px-4 ${darkMode ? '' : 'bg-gradient-to-b from-white to-rose-50'}`}>
+      <section className={`py-12 sm:py-20 px-4 ${darkMode ? '' : 'bg-gradient-to-b from-white to-rose-50'}`}>
         <div className="max-w-5xl mx-auto">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 p-12 md:p-16 text-center shadow-2xl shadow-orange-500/30">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 p-8 sm:p-12 md:p-16 text-center shadow-2xl shadow-orange-500/30">
             <div className="relative z-10">
-              <div className="w-20 h-20 mx-auto mb-6 bg-white/20 backdrop-blur rounded-3xl flex items-center justify-center text-white">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 bg-white/20 backdrop-blur rounded-2xl sm:rounded-3xl flex items-center justify-center text-white">
                 <Icons.Home />
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">
                 Ready to Give a Pet a Loving Home?
               </h2>
-              <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+              <p className="text-base sm:text-xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">
                 Join thousands of happy families who have given loving homes to pets through PawMatch!
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/pets" className="px-8 py-4 bg-white text-orange-600 hover:bg-orange-50 text-lg font-semibold rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <Link href="/pets" className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-orange-600 hover:bg-orange-50 text-base sm:text-lg font-semibold rounded-xl sm:rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2">
                   Browse Pets
                   <Icons.ArrowRight />
                 </Link>
-               
               </div>
             </div>
           </div>
@@ -833,35 +918,35 @@ export default function PetAdoptionLanding() {
       </section>
 
       {/* Footer */}
-      <footer id="contact" className={`py-16 px-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-900'} text-white`}>
+      <footer id="contact" className={`py-10 sm:py-16 px-4 ${darkMode ? 'bg-gray-900' : 'bg-gray-900'} text-white`}>
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-rose-500 to-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
                   <Icons.Paw />
                 </div>
-                <span className="text-xl font-bold">PawMatch</span>
+                <span className="text-lg sm:text-xl font-bold">PawMatch</span>
               </div>
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">
                 Connecting loving families with pets in need since 2020. Every pet deserves a loving home.
               </p>
               <div className="flex gap-3">
-                <button className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 flex items-center justify-center transition-all">
+                <button className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-800 hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 flex items-center justify-center transition-all">
                   <Icons.Facebook />
                 </button>
-                <button className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 flex items-center justify-center transition-all">
+                <button className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-800 hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 flex items-center justify-center transition-all">
                   <Icons.Twitter />
                 </button>
-                <button className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 flex items-center justify-center transition-all">
+                <button className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-800 hover:bg-gradient-to-r hover:from-rose-500 hover:to-orange-500 flex items-center justify-center transition-all">
                   <Icons.Instagram />
                 </button>
               </div>
             </div>
 
             <div>
-              <h4 className="font-bold text-lg mb-4">Quick Links</h4>
-              <ul className="space-y-3 text-gray-400">
+              <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Quick Links</h4>
+              <ul className="space-y-2 sm:space-y-3 text-gray-400 text-sm sm:text-base">
                 <li><Link href="/pets" className="hover:text-rose-400 transition-colors">Find a Pet</Link></li>
                 <li><Link href="/guides" className="hover:text-rose-400 transition-colors">Adoption Process</Link></li>
                 <li><Link href="/guides" className="hover:text-rose-400 transition-colors">Success Stories</Link></li>
@@ -870,8 +955,8 @@ export default function PetAdoptionLanding() {
             </div>
 
             <div>
-              <h4 className="font-bold text-lg mb-4">Resources</h4>
-              <ul className="space-y-3 text-gray-400">
+              <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Resources</h4>
+              <ul className="space-y-2 sm:space-y-3 text-gray-400 text-sm sm:text-base">
                 <li><Link href="/guides" className="hover:text-rose-400 transition-colors">Pet Care Tips</Link></li>
                 <li><Link href="/faqs" className="hover:text-rose-400 transition-colors">FAQs</Link></li>
                 <li><Link href="/guides" className="hover:text-rose-400 transition-colors">Blog</Link></li>
@@ -879,9 +964,9 @@ export default function PetAdoptionLanding() {
               </ul>
             </div>
 
-            <div>
-              <h4 className="font-bold text-lg mb-4">Contact Us</h4>
-              <ul className="space-y-3 text-gray-400">
+            <div className="col-span-2 md:col-span-1">
+              <h4 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Contact Us</h4>
+              <ul className="space-y-2 sm:space-y-3 text-gray-400 text-sm sm:text-base">
                 <li className="flex items-center gap-3">
                   <Icons.Phone />
                   <span>1-800-PAW-MATCH</span>
@@ -898,11 +983,11 @@ export default function PetAdoptionLanding() {
             </div>
           </div>
 
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
+          <div className="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-400 text-xs sm:text-sm">
               © 2026 PawMatch. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm text-gray-400">
+            <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400">
               <a href="#" className="hover:text-rose-400 transition-colors">Privacy Policy</a>
               <a href="#" className="hover:text-rose-400 transition-colors">Terms of Service</a>
               <a href="#" className="hover:text-rose-400 transition-colors">Cookie Policy</a>
@@ -910,6 +995,14 @@ export default function PetAdoptionLanding() {
           </div>
         </div>
       </footer>
+
+      {/* Animation keyframes */}
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
