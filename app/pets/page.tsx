@@ -60,6 +60,26 @@ const Icons = {
       <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
     </svg>
   ),
+  ChevronDown: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+      <path d="m6 9 6 6 6-6"/>
+    </svg>
+  ),
+  ChevronUp: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  ),
+  ArrowLeft: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+      <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+    </svg>
+  ),
+  User: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
 };
 
 interface Pet {
@@ -95,6 +115,7 @@ export default function PetsPage() {
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [togglingFav, setTogglingFav] = useState<Set<string>>(new Set());
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const petTypes = ['Dog', 'Cat', 'Rabbit', 'Bird', 'Hamster', 'Fish', 'Turtle'];
   const genders = ['Male', 'Female'];
@@ -234,28 +255,31 @@ export default function PetsPage() {
     }
   };
 
+  // Active filter count for mobile badge
+  const activeFilterCount = (selectedType ? 1 : 0) + (selectedGender ? 1 : 0);
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-950 text-white' : 'bg-gradient-to-b from-rose-50 via-white to-amber-50 text-gray-900'}`}>
       {/* Login Popup */}
       {showLoginPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowLoginPopup(false)}>
-          <div className={`relative w-full max-w-md mx-4 p-8 rounded-2xl shadow-2xl ${darkMode ? 'bg-gray-900 border border-gray-700' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowLoginPopup(false)} className={`absolute top-4 right-4 p-1 rounded-full ${darkMode ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" onClick={() => setShowLoginPopup(false)}>
+          <div className={`relative w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-2xl ${darkMode ? 'bg-gray-900 border border-gray-700' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowLoginPopup(false)} className={`absolute top-3 right-3 sm:top-4 sm:right-4 p-1 rounded-full ${darkMode ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}>
               <Icons.X />
             </button>
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center text-white shadow-lg">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center text-white shadow-lg">
                 <Icons.Paw />
               </div>
-              <h3 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Login Required</h3>
-              <p className={`mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Login Required</h3>
+              <p className={`mb-5 sm:mb-6 text-sm sm:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Please login to add pets to your favorites
               </p>
               <div className="flex gap-3">
-                <Link href="/auth/login" className="flex-1 py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:via-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all text-center">
+                <Link href="/auth/login" className="flex-1 py-2.5 sm:py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:via-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all text-center text-sm sm:text-base">
                   Login
                 </Link>
-                <Link href="/auth/signup" className={`flex-1 py-3 font-semibold rounded-xl border transition-all text-center ${darkMode ? 'border-gray-700 text-gray-300 hover:bg-gray-800' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}>
+                <Link href="/auth/signup" className={`flex-1 py-2.5 sm:py-3 font-semibold rounded-xl border transition-all text-center text-sm sm:text-base ${darkMode ? 'border-gray-700 text-gray-300 hover:bg-gray-800' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}>
                   Sign Up
                 </Link>
               </div>
@@ -266,55 +290,59 @@ export default function PetsPage() {
 
       {/* Header */}
       <header className={`sticky top-0 z-10 transition-colors duration-300 ${darkMode ? 'bg-gray-900/95 border-b border-gray-800' : 'bg-white/95 shadow-sm'} backdrop-blur-lg`}>
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-orange-500 shadow-lg shadow-rose-500/30 text-white">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-500 to-orange-500 shadow-lg shadow-rose-500/30 text-white">
                 <Icons.Paw />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-rose-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">
+              <span className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-rose-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">
                 PawMatch
               </span>
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => setDarkMode(!darkMode)}
-                className={`p-2.5 rounded-full transition-all ${darkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-gradient-to-r from-amber-100 to-orange-100 text-orange-600 hover:from-amber-200 hover:to-orange-200 shadow-sm'}`}
+                className={`p-2 sm:p-2.5 rounded-full transition-all ${darkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-gradient-to-r from-amber-100 to-orange-100 text-orange-600 hover:from-amber-200 hover:to-orange-200 shadow-sm'}`}
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? <Icons.Sun /> : <Icons.Moon />}
               </button>
               {user ? (
-                <Link href="/dashboard" className={`font-medium transition-colors ${darkMode ? 'text-gray-300 hover:text-orange-400' : 'text-gray-600 hover:text-rose-600'}`}>
-                  Dashboard
+                <Link href="/dashboard" className={`flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl font-medium transition-all text-sm sm:text-base ${darkMode ? 'bg-gray-800 text-orange-400 hover:bg-gray-700' : 'bg-gradient-to-r from-rose-100 to-orange-100 text-rose-600 hover:from-rose-200 hover:to-orange-200'}`}>
+                  <Icons.User />
+                  <span className="hidden sm:inline">Dashboard</span>
                 </Link>
               ) : (
-                <Link href="/auth/login" className={`font-medium transition-colors ${darkMode ? 'text-gray-300 hover:text-orange-400' : 'text-gray-600 hover:text-rose-600'}`}>
-                  Login
+                <Link href="/auth/login" className={`flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl font-medium transition-all text-sm sm:text-base ${darkMode ? 'bg-gray-800 text-orange-400 hover:bg-gray-700 border border-gray-700' : 'border-2 border-rose-300 text-rose-600 hover:bg-rose-50'}`}>
+                  <Icons.User />
+                  <span>Login</span>
                 </Link>
               )}
-              <Link href="/" className={`font-medium transition-colors ${darkMode ? 'text-gray-300 hover:text-orange-400' : 'text-gray-600 hover:text-rose-600'}`}>
-                Back to Home
+              <Link href="/" className={`hidden sm:flex items-center gap-1.5 font-medium transition-colors text-sm ${darkMode ? 'text-gray-300 hover:text-orange-400' : 'text-gray-600 hover:text-rose-600'}`}>
+                <Icons.ArrowLeft />
+                Home
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8">
         {/* Page Title */}
-        <div className="text-center mb-8">
-          <h1 className={`text-4xl md:text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+        <div className="text-center mb-5 sm:mb-8">
+          <h1 className={`text-2xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             Find Your <span className="bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 bg-clip-text text-transparent">Perfect Pet</span>
           </h1>
-          <p className={`text-xl ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Browse through our available pets and find your perfect companion</p>
+          <p className={`text-sm sm:text-xl ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Browse through our available pets and find your perfect companion</p>
         </div>
 
         {/* Search and Filters */}
-        <div className={`rounded-2xl shadow-lg p-6 mb-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800/80 border border-gray-700' : 'bg-white'}`}>
-          <form onSubmit={handleSearch} className="space-y-4">
+        <div className={`rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 mb-5 sm:mb-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800/80 border border-gray-700' : 'bg-white'}`}>
+          <form onSubmit={handleSearch} className="space-y-3 sm:space-y-4">
+            {/* Search Input */}
             <div className="relative">
-              <span className={`absolute left-4 top-1/2 -translate-y-1/2 ${darkMode ? 'text-orange-400' : 'text-rose-400'}`}>
+              <span className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 ${darkMode ? 'text-orange-400' : 'text-rose-400'}`}>
                 <Icons.Search />
               </span>
               <input
@@ -322,7 +350,7 @@ export default function PetsPage() {
                 placeholder="Search by name, breed, or location..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full pl-12 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 transition-all ${
+                className={`w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 transition-all ${
                   darkMode
                     ? 'bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500'
                     : 'border-2 border-rose-200 text-gray-900 placeholder-gray-400 focus:ring-rose-500 focus:border-rose-300'
@@ -330,51 +358,76 @@ export default function PetsPage() {
               />
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Pet Type</label>
-                <select
-                  value={selectedType}
-                  onChange={(e) => { setSelectedType(e.target.value); setCurrentPage(1); }}
-                  className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 transition-all ${
-                    darkMode
-                      ? 'bg-gray-700 border border-gray-600 text-white focus:ring-orange-500'
-                      : 'border-2 border-rose-200 text-gray-900 focus:ring-rose-500'
-                  }`}
-                >
-                  <option value="">All Types</option>
-                  {petTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
+            {/* Mobile: Toggle Filters Button */}
+            <button
+              type="button"
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex sm:hidden items-center justify-between w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                darkMode
+                  ? 'bg-gray-700 border border-gray-600 text-gray-300'
+                  : 'border-2 border-rose-200 text-gray-700'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Icons.Filter />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                    {activeFilterCount}
+                  </span>
+                )}
               </div>
+              {showFilters ? <Icons.ChevronUp /> : <Icons.ChevronDown />}
+            </button>
 
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Gender</label>
-                <select
-                  value={selectedGender}
-                  onChange={(e) => { setSelectedGender(e.target.value); setCurrentPage(1); }}
-                  className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 transition-all ${
-                    darkMode
-                      ? 'bg-gray-700 border border-gray-600 text-white focus:ring-orange-500'
-                      : 'border-2 border-rose-200 text-gray-900 focus:ring-rose-500'
-                  }`}
-                >
-                  <option value="">All Genders</option>
-                  {genders.map(gender => (
-                    <option key={gender} value={gender}>{gender}</option>
-                  ))}
-                </select>
-              </div>
+            {/* Filters - Always visible on desktop, collapsible on mobile */}
+            <div className={`${showFilters ? 'block' : 'hidden'} sm:block`}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div>
+                  <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Pet Type</label>
+                  <select
+                    value={selectedType}
+                    onChange={(e) => { setSelectedType(e.target.value); setCurrentPage(1); }}
+                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 transition-all ${
+                      darkMode
+                        ? 'bg-gray-700 border border-gray-600 text-white focus:ring-orange-500'
+                        : 'border-2 border-rose-200 text-gray-900 focus:ring-rose-500'
+                    }`}
+                  >
+                    <option value="">All Types</option>
+                    {petTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="flex items-end">
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:via-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
-                >
-                  <Icons.Filter />
-                  Apply Filters
-                </button>
+                <div>
+                  <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Gender</label>
+                  <select
+                    value={selectedGender}
+                    onChange={(e) => { setSelectedGender(e.target.value); setCurrentPage(1); }}
+                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 transition-all ${
+                      darkMode
+                        ? 'bg-gray-700 border border-gray-600 text-white focus:ring-orange-500'
+                        : 'border-2 border-rose-200 text-gray-900 focus:ring-rose-500'
+                    }`}
+                  >
+                    <option value="">All Genders</option>
+                    {genders.map(gender => (
+                      <option key={gender} value={gender}>{gender}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-end col-span-2 sm:col-span-1">
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 hover:from-rose-600 hover:via-orange-600 hover:to-amber-600 text-white font-semibold rounded-lg sm:rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
+                  >
+                    <Icons.Filter />
+                    Apply Filters
+                  </button>
+                </div>
               </div>
             </div>
           </form>
@@ -382,29 +435,29 @@ export default function PetsPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="flex justify-center items-center py-20">
+          <div className="flex justify-center items-center py-16 sm:py-20">
             <Icons.Loader />
-            <span className={`ml-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading pets...</span>
+            <span className={`ml-3 text-sm sm:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading pets...</span>
           </div>
         )}
 
         {/* Pets Grid */}
         {!loading && pets.length > 0 && (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
               {pets.map((pet) => {
                 const isFav = favoriteIds.has(pet._id);
                 return (
                   <Link
                     key={pet._id}
                     href={`/pets/${pet._id}`}
-                    className={`group rounded-2xl overflow-hidden transition-all hover:-translate-y-2 ${
+                    className={`group rounded-xl sm:rounded-2xl overflow-hidden transition-all hover:-translate-y-2 ${
                       darkMode
                         ? 'bg-gray-800 border border-gray-700 hover:border-gray-600 hover:shadow-2xl hover:shadow-orange-500/10'
                         : 'bg-white shadow-lg hover:shadow-2xl hover:shadow-rose-200/50'
                     }`}
                   >
-                    <div className="relative h-64 overflow-hidden">
+                    <div className="relative h-40 sm:h-52 md:h-64 overflow-hidden">
                       <img
                         src={pet.image}
                         alt={pet.name}
@@ -412,7 +465,7 @@ export default function PetsPage() {
                       />
                       <button
                         onClick={(e) => toggleFavorite(e, pet._id)}
-                        className={`absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                        className={`absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
                           isFav
                             ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40 scale-110'
                             : darkMode
@@ -422,16 +475,16 @@ export default function PetsPage() {
                       >
                         {isFav ? <Icons.HeartFilled /> : <Icons.HeartOutline />}
                       </button>
-                      <span className={`absolute bottom-4 left-4 px-3 py-1.5 rounded-full text-sm font-semibold ${
+                      <span className={`absolute bottom-2 left-2 sm:bottom-4 sm:left-4 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-sm font-semibold ${
                         darkMode ? 'bg-gray-900/80 text-white' : 'bg-white/95 text-gray-700 shadow-sm'
                       }`}>
                         {pet.type}
                       </span>
                     </div>
-                    <div className="p-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{pet.name}</h3>
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                    <div className="p-3 sm:p-5">
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <h3 className={`text-sm sm:text-xl font-bold truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>{pet.name}</h3>
+                        <span className={`px-1.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-sm font-semibold flex-shrink-0 ml-1 ${
                           darkMode
                             ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
                             : 'bg-gradient-to-r from-rose-100 to-orange-100 text-rose-600 border border-rose-200'
@@ -439,12 +492,13 @@ export default function PetsPage() {
                           {pet.age}
                         </span>
                       </div>
-                      <p className={`mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{pet.breed} • {pet.gender}</p>
-                      <div className={`flex items-center gap-2 mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                      <p className={`mb-1 sm:mb-2 text-xs sm:text-base truncate ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{pet.breed} • {pet.gender}</p>
+                      <div className={`flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                         <Icons.Location />
-                        <span className="text-sm">{pet.shelterName}</span>
+                        <span className="text-[10px] sm:text-sm truncate">{pet.shelterName}</span>
                       </div>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      {/* Personality tags - hidden on very small screens to save space */}
+                      <div className="hidden sm:flex flex-wrap gap-2 mb-4">
                         {pet.personality.slice(0, 2).map((trait) => (
                           <span key={trait} className={`px-3 py-1 rounded-full text-xs font-medium ${
                             darkMode
@@ -455,9 +509,22 @@ export default function PetsPage() {
                           </span>
                         ))}
                       </div>
+                      {/* Mobile: show 1 trait */}
+                      <div className="flex sm:hidden flex-wrap gap-1 mb-2">
+                        {pet.personality.slice(0, 1).map((trait) => (
+                          <span key={trait} className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                            darkMode
+                              ? 'bg-gray-700 text-gray-300'
+                              : 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 border border-amber-200'
+                          }`}>
+                            {trait}
+                          </span>
+                        ))}
+                      </div>
                       <div className="flex items-center justify-end">
-                        <span className={`font-semibold flex items-center gap-1 ${darkMode ? 'text-orange-400' : 'text-rose-600'}`}>
-                          Take Home
+                        <span className={`font-semibold flex items-center gap-1 text-xs sm:text-base ${darkMode ? 'text-orange-400' : 'text-rose-600'}`}>
+                          <span className="hidden sm:inline">Take Home</span>
+                          <span className="sm:hidden">Adopt</span>
                           <Icons.ArrowRight />
                         </span>
                       </div>
@@ -469,39 +536,59 @@ export default function PetsPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center items-center gap-1.5 sm:gap-2 flex-wrap">
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base ${
                     darkMode
                       ? 'border border-gray-700 text-orange-400 hover:bg-gray-800'
                       : 'border-2 border-rose-200 text-rose-600 hover:bg-rose-50'
                   }`}
                 >
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
+                  <span className="sm:hidden">Prev</span>
                 </button>
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-xl font-medium transition-all ${
-                        currentPage === page
-                          ? 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg'
-                          : darkMode
-                            ? 'border border-gray-700 text-gray-300 hover:bg-gray-800'
-                            : 'border-2 border-rose-200 text-rose-600 hover:bg-rose-50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                <div className="flex items-center gap-1 sm:gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                    // On mobile, show limited page numbers
+                    const showPage = totalPages <= 5 ||
+                      page === 1 ||
+                      page === totalPages ||
+                      Math.abs(page - currentPage) <= 1;
+                    
+                    if (!showPage) {
+                      // Show ellipsis
+                      if (page === 2 && currentPage > 3) {
+                        return <span key={page} className={`text-xs sm:text-sm ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>…</span>;
+                      }
+                      if (page === totalPages - 1 && currentPage < totalPages - 2) {
+                        return <span key={page} className={`text-xs sm:text-sm ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>…</span>;
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl font-medium transition-all text-sm sm:text-base ${
+                          currentPage === page
+                            ? 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg'
+                            : darkMode
+                              ? 'border border-gray-700 text-gray-300 hover:bg-gray-800'
+                              : 'border-2 border-rose-200 text-rose-600 hover:bg-rose-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
                 </div>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base ${
                     darkMode
                       ? 'border border-gray-700 text-orange-400 hover:bg-gray-800'
                       : 'border-2 border-rose-200 text-rose-600 hover:bg-rose-50'
@@ -516,8 +603,11 @@ export default function PetsPage() {
 
         {/* No Results */}
         {!loading && pets.length === 0 && (
-          <div className="text-center py-20">
-            <p className={`text-2xl mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>No pets found matching your criteria</p>
+          <div className="text-center py-16 sm:py-20">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-rose-500/10 to-orange-500/10 flex items-center justify-center">
+              <Icons.Paw />
+            </div>
+            <p className={`text-lg sm:text-2xl mb-3 sm:mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>No pets found matching your criteria</p>
             <button
               onClick={() => {
                 setSearchQuery('');
@@ -525,7 +615,7 @@ export default function PetsPage() {
                 setSelectedGender('');
                 setCurrentPage(1);
               }}
-              className="px-6 py-3 bg-gradient-to-r from-rose-500 to-orange-500 text-white font-semibold rounded-xl hover:from-rose-600 hover:to-orange-600 transition-all"
+              className="px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-rose-500 to-orange-500 text-white font-semibold rounded-xl hover:from-rose-600 hover:to-orange-600 transition-all text-sm sm:text-base"
             >
               Clear Filters
             </button>
