@@ -120,7 +120,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#0c0a09] text-white overflow-hidden">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col lg:flex-row bg-[#0c0a09] text-white overflow-x-hidden">
       <style jsx>{`
         @keyframes float-up {
           0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
@@ -156,6 +156,10 @@ export default function LoginPage() {
           from { transform: scale(0.95); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
         }
+        @keyframes mobile-fade-in {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         .animate-float-up { animation: float-up linear infinite; }
         .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
         .animate-slide-left { animation: slide-in-left 0.8s ease-out forwards; }
@@ -163,6 +167,7 @@ export default function LoginPage() {
         .animate-fade-up { animation: fade-in-up 0.6s ease-out forwards; }
         .animate-gentle-float { animation: gentle-float 4s ease-in-out infinite; }
         .animate-scale-in { animation: scale-in 0.6s ease-out forwards; }
+        .animate-mobile-fade { animation: mobile-fade-in 0.6s ease-out forwards; }
         .shimmer-line {
           background: linear-gradient(90deg, transparent, rgba(251,146,60,0.15), transparent);
           background-size: 200% 100%;
@@ -177,7 +182,53 @@ export default function LoginPage() {
         }
       `}</style>
 
-      {/* Left Side - Beautiful Image Panel */}
+      {/* Mobile Hero Banner - visible only on mobile */}
+      <div className="lg:hidden relative w-full h-48 sm:h-56 flex-shrink-0 overflow-hidden">
+        <img
+          src="https://mgx-backend-cdn.metadl.com/generate/images/981465/2026-02-21/192618a2-c067-4c73-84a0-e84172f9a755.png"
+          alt="Happy puppy"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0c0a09]/30 via-transparent to-[#0c0a09]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-orange-950/20 via-transparent to-rose-950/20" />
+        {/* Mobile floating paws */}
+        {[
+          { delay: '0s', duration: '8s', left: '10%', size: 'w-5 h-5' },
+          { delay: '2s', duration: '6s', left: '50%', size: 'w-4 h-4' },
+          { delay: '3s', duration: '7s', left: '80%', size: 'w-6 h-6' },
+        ].map((paw, i) => (
+          <div
+            key={i}
+            className={`absolute ${paw.size} text-orange-400/10 animate-float-up`}
+            style={{ left: paw.left, animationDelay: paw.delay, animationDuration: paw.duration }}
+          >
+            <Icons.Paw />
+          </div>
+        ))}
+        {/* Mobile Logo overlay */}
+        <div className="absolute top-4 left-4 z-10">
+          <Link href="/" className="inline-flex items-center gap-2 group">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-orange-500 to-rose-500 text-white shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform duration-300">
+              <Icons.Paw />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-orange-300 via-amber-300 to-yellow-300 bg-clip-text text-transparent">
+              PawMatch
+            </span>
+          </Link>
+        </div>
+        {/* Mobile hero text */}
+        <div className="absolute bottom-4 left-4 right-4 z-10">
+          <h2 className="text-2xl sm:text-3xl font-bold leading-tight tracking-tight">
+            Welcome Back,{' '}
+            <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent">
+              Pet Lover
+            </span>
+            <span className="inline-block ml-1 animate-gentle-float text-xl">🐾</span>
+          </h2>
+        </div>
+      </div>
+
+      {/* Left Side - Beautiful Image Panel (Desktop only) */}
       <div className="hidden lg:flex lg:w-[55%] relative">
         {/* Hero Image */}
         <div className="absolute inset-0">
@@ -277,7 +328,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className={`w-full lg:w-[45%] flex items-center justify-center px-6 sm:px-10 py-8 relative ${mounted ? 'animate-slide-right' : 'opacity-0'}`}>
+      <div className={`w-full lg:w-[45%] flex flex-1 items-center justify-center px-4 sm:px-6 md:px-10 py-6 sm:py-8 relative ${mounted ? 'lg:animate-slide-right animate-mobile-fade' : 'opacity-0'}`}>
         {/* Background accents */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/[0.04] rounded-full blur-[100px]" />
@@ -285,38 +336,26 @@ export default function LoginPage() {
         </div>
 
         <div className="w-full max-w-[420px] relative z-10">
-          {/* Mobile Logo */}
-          <div className="text-center mb-8 lg:hidden">
-            <Link href="/" className="inline-flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-orange-500 to-rose-500 text-white shadow-lg shadow-orange-500/20">
-                <Icons.Paw />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent">
-                PawMatch
-              </span>
-            </Link>
-          </div>
-
           {/* Form Card */}
-          <div className="glass-effect bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 sm:p-10 relative overflow-hidden">
+          <div className="glass-effect bg-white/[0.03] border border-white/[0.06] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 relative overflow-hidden">
             {/* Top shimmer line */}
             <div className="absolute top-0 left-0 right-0 h-px shimmer-line" />
 
             {!resetMode ? (
               <>
                 {/* Header */}
-                <div className="mb-8">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/[0.08] border border-orange-500/[0.12] text-orange-400 text-xs font-medium mb-5">
+                <div className="mb-6 sm:mb-8">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/[0.08] border border-orange-500/[0.12] text-orange-400 text-xs font-medium mb-4 sm:mb-5">
                     <Icons.Heart />
                     <span>Welcome back!</span>
                   </div>
-                  <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Sign In</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1.5 sm:mb-2 tracking-tight">Sign In</h1>
                   <p className="text-gray-500 text-sm">Access your adopter dashboard</p>
                 </div>
 
                 {/* Error */}
                 {error && (
-                  <div className="mb-6 p-3.5 rounded-xl bg-red-500/[0.08] border border-red-500/[0.12] text-red-400 text-sm flex items-center gap-2.5">
+                  <div className="mb-5 sm:mb-6 p-3 sm:p-3.5 rounded-xl bg-red-500/[0.08] border border-red-500/[0.12] text-red-400 text-sm flex items-center gap-2.5">
                     <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
                     </svg>
@@ -325,11 +364,11 @@ export default function LoginPage() {
                 )}
 
                 {/* Form */}
-                <form onSubmit={handleLogin} className="space-y-5">
+                <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
                   <div className="animate-fade-up" style={{ animationDelay: '0.1s' }}>
-                    <label className="block text-sm font-medium mb-2 text-gray-400">Email</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2 text-gray-400">Email</label>
                     <div className="relative group input-glow rounded-xl transition-all duration-300">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-orange-400 transition-colors duration-300">
+                      <span className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-orange-400 transition-colors duration-300">
                         <Icons.Mail />
                       </span>
                       <input
@@ -338,15 +377,15 @@ export default function LoginPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="your@email.com"
                         required
-                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/30 transition-all duration-300 hover:bg-white/[0.06]"
+                        className="w-full pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/30 transition-all duration-300 hover:bg-white/[0.06] text-base"
                       />
                     </div>
                   </div>
 
                   <div className="animate-fade-up" style={{ animationDelay: '0.2s' }}>
-                    <label className="block text-sm font-medium mb-2 text-gray-400">Password</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2 text-gray-400">Password</label>
                     <div className="relative group input-glow rounded-xl transition-all duration-300">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-orange-400 transition-colors duration-300">
+                      <span className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-orange-400 transition-colors duration-300">
                         <Icons.Lock />
                       </span>
                       <input
@@ -355,12 +394,12 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
                         required
-                        className="w-full pl-12 pr-12 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/30 transition-all duration-300 hover:bg-white/[0.06]"
+                        className="w-full pl-11 sm:pl-12 pr-12 py-3 sm:py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/30 transition-all duration-300 hover:bg-white/[0.06] text-base"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors"
+                        className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors p-1"
                       >
                         {showPassword ? <Icons.EyeOff /> : <Icons.Eye />}
                       </button>
@@ -372,7 +411,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setResetMode(true)}
-                      className="text-sm text-orange-400/80 hover:text-orange-400 transition-colors"
+                      className="text-sm text-orange-400/80 hover:text-orange-400 transition-colors py-1"
                     >
                       Forgot password?
                     </button>
@@ -382,7 +421,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99] group"
+                      className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99] group text-base"
                     >
                       {loading ? (
                         <><Icons.Loader /> Signing in...</>
@@ -398,7 +437,23 @@ export default function LoginPage() {
                   </div>
                 </form>
 
-                <p className="text-center mt-8 text-gray-500 text-sm">
+                {/* Mobile Stats Row */}
+                <div className="flex justify-center gap-6 sm:gap-8 mt-6 pt-6 border-t border-white/[0.04] lg:hidden">
+                  {[
+                    { number: '12K+', label: 'Adopted' },
+                    { number: '8K+', label: 'Families' },
+                    { number: '98%', label: 'Match' },
+                  ].map((stat, i) => (
+                    <div key={i} className="text-center">
+                      <div className="text-lg font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+                        {stat.number}
+                      </div>
+                      <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-center mt-6 sm:mt-8 text-gray-500 text-sm">
                   Don&apos;t have an account?{' '}
                   <Link href="/auth/signup" className="font-semibold text-orange-400 hover:text-orange-300 transition-colors">
                     Create Account
@@ -408,25 +463,25 @@ export default function LoginPage() {
             ) : (
               <>
                 {/* Reset Password Mode */}
-                <div className="mb-8">
-                  <div className="w-14 h-14 mb-5 rounded-2xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/10 flex items-center justify-center text-orange-400">
+                <div className="mb-6 sm:mb-8">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 mb-4 sm:mb-5 rounded-2xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/10 flex items-center justify-center text-orange-400">
                     <Icons.Mail />
                   </div>
-                  <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Reset Password</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1.5 sm:mb-2 tracking-tight">Reset Password</h1>
                   <p className="text-gray-500 text-sm">Enter your email to receive a reset link</p>
                 </div>
 
                 {resetMessage && (
-                  <div className="mb-6 p-3.5 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/[0.12] text-emerald-400 text-sm">
+                  <div className="mb-5 sm:mb-6 p-3 sm:p-3.5 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/[0.12] text-emerald-400 text-sm">
                     {resetMessage}
                   </div>
                 )}
 
-                <form onSubmit={handleResetPassword} className="space-y-5">
+                <form onSubmit={handleResetPassword} className="space-y-4 sm:space-y-5">
                   <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-400">Email</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2 text-gray-400">Email</label>
                     <div className="relative group input-glow rounded-xl transition-all duration-300">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-orange-400 transition-colors duration-300">
+                      <span className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-orange-400 transition-colors duration-300">
                         <Icons.Mail />
                       </span>
                       <input
@@ -435,7 +490,7 @@ export default function LoginPage() {
                         onChange={(e) => setResetEmail(e.target.value)}
                         placeholder="your@email.com"
                         required
-                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/30 transition-all duration-300 hover:bg-white/[0.06]"
+                        className="w-full pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.06] text-white placeholder-gray-600 focus:outline-none focus:border-orange-500/30 transition-all duration-300 hover:bg-white/[0.06] text-base"
                       />
                     </div>
                   </div>
@@ -443,13 +498,13 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99]"
+                    className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99] text-base"
                   >
                     {loading ? <><Icons.Loader /> Sending...</> : 'Send Reset Link'}
                   </button>
                 </form>
 
-                <p className="text-center mt-8 text-gray-500 text-sm">
+                <p className="text-center mt-6 sm:mt-8 text-gray-500 text-sm">
                   Remember your password?{' '}
                   <button
                     onClick={() => { setResetMode(false); setResetMessage(''); }}
