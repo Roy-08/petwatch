@@ -191,6 +191,7 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
   const [collapsed, setCollapsed] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showMobilePalette, setShowMobilePalette] = useState(false);
   const [mode, setMode] = useState<ThemeMode>("dark");
   const [accent, setAccent] = useState<AccentColor>("violet");
 
@@ -206,6 +207,21 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
     if (savedCollapsed === "true") setCollapsed(true);
     setLoading(false);
   }, [router]);
+
+  // Close mobile nav on route change
+  useEffect(() => {
+    setMobileNav(false);
+  }, [pathname]);
+
+  // Prevent body scroll when mobile nav is open
+  useEffect(() => {
+    if (mobileNav) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileNav]);
 
   const toggleMode = () => {
     const next = mode === "dark" ? "light" : "dark";
@@ -246,11 +262,11 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${dk ? "bg-[#09090b]" : "bg-[#fafafa]"}`}>
+      <div className={`min-h-screen min-h-[100dvh] flex items-center justify-center ${dk ? "bg-[#09090b]" : "bg-[#fafafa]"}`}>
         <div className="flex flex-col items-center gap-5">
           <div className="relative">
-            <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${ac.gradient} flex items-center justify-center shadow-2xl ${ac.shadow}`}>
-              <I.Paw c="w-8 h-8 text-white" />
+            <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${ac.gradient} flex items-center justify-center shadow-2xl ${ac.shadow}`}>
+              <I.Paw c="w-7 h-7 sm:w-8 sm:h-8 text-white" />
             </div>
             <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${ac.gradient} animate-ping opacity-20`} />
           </div>
@@ -272,7 +288,7 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
 
   return (
     <ThemeContext.Provider value={{ mode, accent, toggleMode, setAccent: handleSetAccent }}>
-      <div className={`min-h-screen flex transition-colors duration-500 ${dk ? "bg-[#09090b] text-zinc-100" : "bg-[#f5f5f7] text-zinc-900"}`}
+      <div className={`min-h-screen min-h-[100dvh] flex transition-colors duration-500 ${dk ? "bg-[#09090b] text-zinc-100" : "bg-[#f5f5f7] text-zinc-900"}`}
         style={{ fontFamily: "'Inter', 'Plus Jakarta Sans', system-ui, sans-serif" }}>
 
         {/* ═══ Desktop Sidebar ═══ */}
@@ -312,7 +328,7 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
           )}
 
           {/* Navigation */}
-          <nav className={`flex-1 px-3 py-2 space-y-1 overflow-y-auto`}>
+          <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
             {!collapsed && (
               <p className={`text-[10px] font-bold uppercase tracking-[0.2em] px-3 mb-3 ${dk ? "text-zinc-600" : "text-zinc-400"}`}>Navigation</p>
             )}
@@ -384,7 +400,6 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
               )}
             </div>
 
-            
             {/* View site */}
             <Link href="/"
               className={`w-full flex items-center ${collapsed ? "justify-center" : ""} gap-3 ${collapsed ? "px-0 py-3" : "px-3 py-2.5"} rounded-xl text-sm font-medium transition-all duration-200 ${dk ? "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/60" : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"}`}
@@ -437,20 +452,23 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
         {mobileNav && (
           <div className="fixed inset-0 z-[60] lg:hidden">
             <div className={`absolute inset-0 ${dk ? "bg-black/60" : "bg-black/20"} backdrop-blur-sm`} onClick={() => setMobileNav(false)} />
-            <div className={`absolute left-0 top-0 bottom-0 w-72 ${dk ? "bg-[#0c0c0f] border-zinc-800" : "bg-white border-zinc-200"} border-r`}
+            <div className={`absolute left-0 top-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col ${dk ? "bg-[#0c0c0f] border-zinc-800" : "bg-white border-zinc-200"} border-r`}
               style={{ animation: "slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}>
-              <div className="flex items-center justify-between p-4 h-16">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${ac.gradient} flex items-center justify-center shadow-lg`}>
-                    <I.Paw c="w-5 h-5 text-white" />
+              {/* Drawer header */}
+              <div className="flex items-center justify-between p-4 h-14 flex-shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ac.gradient} flex items-center justify-center shadow-lg`}>
+                    <I.Paw c="w-4.5 h-4.5 text-white" />
                   </div>
                   <span className={`text-base font-extrabold bg-gradient-to-r ${ac.gradient} bg-clip-text text-transparent`}>PawMatch</span>
                 </div>
                 <button onClick={() => setMobileNav(false)} className={`p-2 rounded-xl ${dk ? "hover:bg-zinc-800 text-zinc-500" : "hover:bg-zinc-100 text-zinc-400"}`}>
-                  <I.X />
+                  <I.X c="w-5 h-5" />
                 </button>
               </div>
-              <nav className="px-3 py-2 space-y-1">
+
+              {/* Drawer navigation - scrollable */}
+              <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
                 <p className={`text-[10px] font-bold uppercase tracking-[0.2em] px-3 mb-3 ${dk ? "text-zinc-600" : "text-zinc-400"}`}>Navigation</p>
                 {navItems.map((item) => {
                   const active = activeTab === item.id;
@@ -470,37 +488,159 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
                   );
                 })}
               </nav>
-              <div className={`mx-3 mt-4 pt-4 border-t ${dk ? "border-zinc-800" : "border-zinc-200"}`}>
-                <div className="flex items-center gap-3 px-3 py-3">
-                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ac.gradient} flex items-center justify-center text-white text-sm font-bold`}>
-                    {admin.name.charAt(0).toUpperCase()}
+
+              {/* Drawer bottom section */}
+              <div className={`flex-shrink-0 px-3 pb-4 pt-2 border-t ${dk ? "border-zinc-800" : "border-zinc-200"}`}>
+                {/* Theme & Palette row */}
+                <div className="flex items-center gap-2 px-1 py-2">
+                  <button onClick={toggleMode}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium transition-all ${dk ? "bg-zinc-800/60 text-zinc-400 hover:text-amber-400" : "bg-zinc-100 text-zinc-500 hover:text-indigo-500"}`}>
+                    {dk ? <I.Sun c="w-4 h-4" /> : <I.Moon c="w-4 h-4" />}
+                    {dk ? "Light" : "Dark"}
+                  </button>
+                  <div className="relative flex-1">
+                    <button onClick={() => setShowMobilePalette(!showMobilePalette)}
+                      className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium transition-all ${dk ? "bg-zinc-800/60 text-zinc-400 hover:text-zinc-200" : "bg-zinc-100 text-zinc-500 hover:text-zinc-700"}`}>
+                      <I.Palette c="w-4 h-4" />
+                      Color
+                    </button>
+                    {showMobilePalette && (
+                      <>
+                        <div className="fixed inset-0 z-[65]" onClick={() => setShowMobilePalette(false)} />
+                        <div className={`absolute left-0 right-0 bottom-full mb-2 z-[66] rounded-2xl p-4 ${dk ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-200"} border shadow-2xl`}
+                          style={{ animation: "popIn 0.2s ease-out" }}>
+                          <p className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-3 ${dk ? "text-zinc-500" : "text-zinc-400"}`}>Choose Accent</p>
+                          <div className="flex gap-2 justify-center">
+                            {swatches.map((s) => (
+                              <button key={s.id} onClick={() => { handleSetAccent(s.id); setShowMobilePalette(false); }}
+                                className={`w-9 h-9 rounded-lg transition-all duration-200 hover:scale-110 ${accent === s.id ? "ring-2 ring-offset-2 scale-105" : ""} ${dk ? "ring-offset-zinc-900" : "ring-offset-white"}`}
+                                style={{ backgroundColor: s.hex, boxShadow: accent === s.id ? `0 0 16px ${s.hex}40` : "none" }}
+                                title={s.label} />
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${dk ? "text-zinc-200" : "text-zinc-800"}`}>{admin.name}</p>
-                    <p className={`text-[11px] capitalize ${dk ? "text-zinc-600" : "text-zinc-400"}`}>{admin.role.replace("_", " ")}</p>
-                  </div>
+                  <Link href="/" onClick={() => setMobileNav(false)}
+                    className={`flex items-center justify-center py-2.5 px-3 rounded-xl text-xs font-medium transition-all ${dk ? "bg-zinc-800/60 text-zinc-400 hover:text-zinc-200" : "bg-zinc-100 text-zinc-500 hover:text-zinc-700"}`}>
+                    <I.External c="w-4 h-4" />
+                  </Link>
                 </div>
-                <button onClick={handleLogout}
-                  className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium w-full transition-colors ${dk ? "text-red-400 hover:bg-red-500/10" : "text-red-500 hover:bg-red-50"}`}>
-                  <I.Logout c="w-5 h-5" />
-                  Sign Out
-                </button>
+
+                {/* User info */}
+                <div className={`mt-2 pt-3 border-t ${dk ? "border-zinc-800/60" : "border-zinc-200"}`}>
+                  <div className="flex items-center gap-3 px-2 py-2">
+                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${ac.gradient} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
+                      {admin.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold truncate ${dk ? "text-zinc-200" : "text-zinc-800"}`}>{admin.name}</p>
+                      <p className={`text-[11px] truncate capitalize ${dk ? "text-zinc-600" : "text-zinc-400"}`}>{admin.role.replace("_", " ")}</p>
+                    </div>
+                  </div>
+                  <button onClick={handleLogout}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full transition-colors mt-1 ${dk ? "text-red-400 hover:bg-red-500/10" : "text-red-500 hover:bg-red-50"}`}>
+                    <I.Logout c="w-4.5 h-4.5" />
+                    Sign Out
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {/* ═══ Main Content Area ═══ */}
-        <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "lg:ml-[76px]" : "lg:ml-[260px]"}`}>
-          {/* Top bar */}
-          
+        <div className={`flex-1 flex flex-col min-h-screen min-h-[100dvh] transition-all duration-300 ${collapsed ? "lg:ml-[76px]" : "lg:ml-[260px]"}`}>
+          {/* Mobile Top Bar */}
+          <header className={`lg:hidden sticky top-0 z-30 flex items-center justify-between h-14 px-4 ${dk ? "bg-[#09090b]/80 border-zinc-800/50" : "bg-[#f5f5f7]/80 border-zinc-200/80"} border-b backdrop-blur-xl`}>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setMobileNav(true)}
+                className={`p-2 -ml-2 rounded-xl transition-colors ${dk ? "hover:bg-zinc-800 text-zinc-400" : "hover:bg-zinc-100 text-zinc-500"}`}>
+                <I.Menu c="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-2">
+                <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${ac.gradient} flex items-center justify-center shadow-sm`}>
+                  <I.Paw c="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className={`text-sm font-bold ${dk ? "text-zinc-200" : "text-zinc-800"}`}>{pageTitles[activeTab] || "Dashboard"}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button onClick={toggleMode}
+                className={`p-2 rounded-xl transition-colors ${dk ? "hover:bg-zinc-800 text-zinc-500 hover:text-amber-400" : "hover:bg-zinc-100 text-zinc-400 hover:text-indigo-500"}`}>
+                {dk ? <I.Sun c="w-4.5 h-4.5" /> : <I.Moon c="w-4.5 h-4.5" />}
+              </button>
+              <button onClick={() => { setShowProfile(!showProfile); }}
+                className={`w-8 h-8 rounded-lg bg-gradient-to-br ${ac.gradient} flex items-center justify-center text-white text-xs font-bold shadow-sm`}>
+                {admin.name.charAt(0).toUpperCase()}
+              </button>
+            </div>
+          </header>
+
+          {/* Mobile profile dropdown */}
+          {showProfile && (
+            <div className="lg:hidden fixed inset-0 z-[50]" onClick={() => setShowProfile(false)}>
+              <div className={`absolute top-14 right-4 z-[51] rounded-2xl p-2 w-56 ${dk ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-200"} border shadow-2xl`}
+                style={{ animation: "popIn 0.2s ease-out" }}
+                onClick={(e) => e.stopPropagation()}>
+                <div className={`px-3 py-2 mb-1 ${dk ? "text-zinc-400" : "text-zinc-500"}`}>
+                  <p className={`text-sm font-semibold ${dk ? "text-zinc-200" : "text-zinc-800"}`}>{admin.name}</p>
+                  <p className="text-xs truncate">{admin.email}</p>
+                  <p className={`text-[10px] capitalize mt-0.5 ${dk ? "text-zinc-600" : "text-zinc-400"}`}>{admin.role.replace("_", " ")}</p>
+                </div>
+                <div className={`border-t ${dk ? "border-zinc-800" : "border-zinc-100"} my-1`} />
+                <Link href="/" onClick={() => setShowProfile(false)}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${dk ? "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200" : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"}`}>
+                  <I.External c="w-4 h-4" />
+                  View Site
+                </Link>
+                <button onClick={handleLogout}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${dk ? "text-red-400 hover:bg-red-500/10" : "text-red-500 hover:bg-red-50"}`}>
+                  <I.Logout c="w-4 h-4" />
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Page content */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 relative z-10">
+          <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 relative z-10">
             <div className="max-w-[1400px] mx-auto">
               {children}
             </div>
           </main>
+
+          {/* Mobile Bottom Navigation */}
+          <nav className={`lg:hidden sticky bottom-0 z-30 ${dk ? "bg-[#09090b]/90 border-zinc-800/50" : "bg-white/90 border-zinc-200/80"} border-t backdrop-blur-xl safe-area-bottom`}>
+            <div className="flex items-center justify-around px-1 h-14">
+              {navItems.slice(0, 5).map((item) => {
+                const active = activeTab === item.id;
+                return (
+                  <Link key={item.id} href={item.href}
+                    className={`flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-lg transition-colors min-w-0 ${
+                      active
+                        ? dk ? ac.text : ac.textLight
+                        : dk ? "text-zinc-600" : "text-zinc-400"
+                    }`}>
+                    <div className="relative">
+                      <item.icon c="w-5 h-5" />
+                      {active && (
+                        <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-gradient-to-r ${ac.gradient}`} />
+                      )}
+                    </div>
+                    <span className={`text-[9px] font-semibold leading-none truncate max-w-[52px] ${active ? "opacity-100" : "opacity-60"}`}>{item.label}</span>
+                  </Link>
+                );
+              })}
+              {/* More button for remaining items */}
+              <button onClick={() => setMobileNav(true)}
+                className={`flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-lg transition-colors ${dk ? "text-zinc-600" : "text-zinc-400"}`}>
+                <I.Menu c="w-5 h-5" />
+                <span className="text-[9px] font-semibold leading-none opacity-60">More</span>
+              </button>
+            </div>
+          </nav>
         </div>
 
         <style>{`
@@ -511,6 +651,9 @@ export default function AdminDashboardLayout({ children }: { children: ReactNode
           @keyframes popIn {
             from { transform: scale(0.95) translateY(-4px); opacity: 0; }
             to { transform: scale(1) translateY(0); opacity: 1; }
+          }
+          .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
           }
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         `}</style>
