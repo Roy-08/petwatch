@@ -31,7 +31,7 @@ async function connectDB() {
     const opts = {
       bufferCommands: false,
     };
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => m);
+    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((m) => m);
   }
 
   try {
@@ -46,4 +46,5 @@ async function connectDB() {
 
 
 export default connectDB;
+
 
