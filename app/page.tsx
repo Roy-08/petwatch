@@ -801,14 +801,7 @@ export default function PetAdoptionLanding() {
           </div>
 
           <div className="text-center mt-12">
-            <button className={`px-8 py-3 font-semibold rounded-xl transition-all flex items-center gap-2 mx-auto ${
-              darkMode 
-                ? 'bg-gray-800 border border-gray-700 text-pink-400 hover:bg-gray-700' 
-                : 'border-2 border-pink-400 text-pink-600 hover:bg-pink-50 hover:border-pink-500'
-            }`}>
-              Read More Stories
-              <Icons.ArrowRight />
-            </button>
+            
           </div>
         </div>
       </section>
@@ -832,9 +825,7 @@ export default function PetAdoptionLanding() {
                   Browse Pets
                   <Icons.ArrowRight />
                 </Link>
-                <Link href="/shelters" className="px-8 py-4 border-2 border-white text-white hover:bg-white/10 text-lg font-semibold rounded-2xl transition-all">
-                  Register Your Shelter
-                </Link>
+               
               </div>
             </div>
           </div>
@@ -901,7 +892,7 @@ export default function PetAdoptionLanding() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Icons.Location />
-                  <span>San Francisco, CA</span>
+                  <span>Boriwali East, Devipada</span>
                 </li>
               </ul>
             </div>
