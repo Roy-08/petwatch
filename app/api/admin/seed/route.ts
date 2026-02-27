@@ -17,7 +17,7 @@ export async function POST() {
     await Admin.create({
       name: "Admin User",
       email: "admin@pawmatch.com",
-      password: "admin123",
+      password: "pawmatch1010",
       role: "super_admin",
       isActive: true,
     });
@@ -39,4 +39,5 @@ export async function GET() {
   return NextResponse.json({
     message: "Send a POST request to /api/admin/seed to create the default admin account.",
   });
+
 }
