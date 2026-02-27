@@ -10,7 +10,7 @@ export async function POST() {
     if (existingAdmin) {
       return NextResponse.json({
         success: true,
-        message: "Admin already exists. Use email: admin@pawmatch.com, password: admin123",
+        message: "Admin already exists. Use email: admin@pawmatch.com, password: pawmatch1010",
       });
     }
 
@@ -24,7 +24,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: "Admin seeded successfully! Use email: admin@pawmatch.com, password: admin123",
+      message: "Admin seeded successfully! Use email: admin@pawmatch.com, password: pawmatch1010",
     });
   } catch (error) {
     console.error("Admin seed error:", error);
@@ -41,3 +41,4 @@ export async function GET() {
   });
 
 }
+
